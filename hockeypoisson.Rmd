@@ -1,0 +1,53 @@
+---
+title: "Hockey Poisson"
+author: "Ian Thorpe"
+date: "4/4/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+
+```{r}
+hockey_data <- read.delim('hockeystats.txt', sep = ",")
+hockey_data %>%
+  rename(away_goals = G) %>%
+  rename(home_goals = G.1) %>%
+  select(-c(X, Att., LOG, Notes)) %>%
+  na.omit() -> hockey_data
+
+write.csv(hockey_data, "hockeydata.csv")
+  
+```
+
+```{r}
+pois_prob = function(home_team, away_team) {
+  hockey_data %>%
+    filter(Visitor == away_team) %>%
+    summarise(avg_gf_visit = sum(away_goals)/nrow(),
+              avg_ga_visit = sum(home_goals)/nrow()) -> away_data
+  
+  hockey_data %>%
+    filter(Home == home_team) %>%
+    summarise(avg_gf_home = sum(home_goals)/nrow(),
+              avg_ga_home = sum(away_goals)/nrow()) -> home_data
+  
+  
+  
+  avg_gf_home_league <- mean(hockey_data$home_goals)
+  avg_gf_away_league <- mean(hockey_data$away_goals)
+  
+  
+  
+}
+
+
+```
+
