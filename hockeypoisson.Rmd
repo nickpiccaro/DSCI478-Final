@@ -31,23 +31,34 @@ write.csv(hockey_data, "hockeydata.csv")
 pois_prob = function(home_team, away_team) {
   hockey_data %>%
     filter(Visitor == away_team) %>%
-    summarise(avg_gf_visit = sum(away_goals)/nrow(),
-              avg_ga_visit = sum(home_goals)/nrow()) -> away_data
+    summarise(avg_gf_visit = sum(away_goals)/n(),
+              avg_ga_visit = sum(home_goals)/n()) -> away_data
   
   hockey_data %>%
     filter(Home == home_team) %>%
-    summarise(avg_gf_home = sum(home_goals)/nrow(),
-              avg_ga_home = sum(away_goals)/nrow()) -> home_data
+    summarise(avg_gf_home = sum(home_goals)/n(),
+              avg_ga_home = sum(away_goals)/n()) -> home_data
   
   
   
   avg_gf_home_league <- mean(hockey_data$home_goals)
   avg_gf_away_league <- mean(hockey_data$away_goals)
   
+  home_attack <- home_data$avg_gf_home/avg_gf_home_league
+  away_attack <- away_data$avg_gf_visit/avg_gf_away_league
+  
+  home_defense <- home_data$avg_ga_home/avg_gf_away_league
+  away_defense <- away_data$avg_ga_visit/avg_gf_home_league
+  
+  home_exp_gf <- round(home_attack * away_defense * avg_gf_home_league, 2)
+  away_exp_gf <- round(away_attack * home_defense * avg_gf_away_league, 2)
+  
+  cat(home_team, ": ", home_exp_gf, " ", away_team, ": ", away_exp_gf)
   
   
 }
 
 
 ```
+
 
