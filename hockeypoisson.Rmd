@@ -53,9 +53,9 @@ pois_prob = function(home_team, away_team) {
   home_exp_gf <- round(home_attack * away_defense * avg_gf_home_league, 2)
   away_exp_gf <- round(away_attack * home_defense * avg_gf_away_league, 2)
   
-  cat(home_team, ": ", home_exp_gf, " ", away_team, ": ", away_exp_gf)
+  cat(home_team, "expG", ": ", home_exp_gf, " ", away_team, "expG", ": ", away_exp_gf, "\n")
   
-  
+  cat("Total Goals: ", round(home_exp_gf+away_exp_gf, 1))
 }
 
 
