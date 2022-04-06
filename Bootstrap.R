@@ -37,5 +37,6 @@ bootstrap = function(home_team, away_team, n){
 
 bootstrap("Colorado Avalanche", "Florida Panthers", 10000)
 bootstrap("Florida Panthers","Colorado Avalanche", 10000)
+bootstrap("Dallas Stars", "Winnipeg Jets", 10000)
 
 
