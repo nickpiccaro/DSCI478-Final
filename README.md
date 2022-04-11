@@ -1,5 +1,7 @@
 # DSCI478-Final
 
+https://www.hockey-reference.com/leagues/NHL_2022.html
+
 Hockey Data with an application for sportsbetting.
 Using simulation and machine learning
 
