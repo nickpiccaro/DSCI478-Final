@@ -59,11 +59,18 @@ pois_prob = function(home_team, away_team) {
   
   home_in_reg <- mean(rpois(10000, home_exp_gf) > rpois(10000, away_exp_gf))
   away_in_reg <- mean(rpois(10000, away_exp_gf) > rpois(10000, home_exp_gf))
-  tie_in_reg <- 1-home_in_reg-away_in_reg
+  tie_in_reg <- round((1-home_in_reg-away_in_reg)/2, 2)
   
-  cat(home_team, 'will win in regulation', round(home_in_reg*100, 2), '% of the time', '\n')
-  cat(away_team, 'will win in regulation', round(away_in_reg*100, 2), '% of the time', '\n')
-  cat('Regulation will end in a tie', round(tie_in_reg*100, 2), '% of the time')
+  home_beta <- round(mean(rbeta(10000, home_exp_gf, away_exp_gf)), 2)
+  away_beta <- round(mean(rbeta(10000, away_exp_gf, home_exp_gf)), 2)
+  
+  cat(home_team, 'will win', round((home_in_reg+tie_in_reg)*100, 2), '% of the time', '(Poisson)', '\n')
+  cat(away_team, 'will win', round((away_in_reg+tie_in_reg)*100, 2), '% of the time (Poisson)', '\n')
+  cat(home_team, 'will win', home_beta*100, '% of the time (Beta)', '\n')
+  cat(away_team, 'will win', away_beta*100, '% of the time (Beta)', '\n')
+  
+  
+  
   
 }
 
