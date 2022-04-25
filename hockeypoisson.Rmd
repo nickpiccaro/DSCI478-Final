@@ -57,6 +57,12 @@ pois_prob = function(home_team, away_team) {
   
   cat("Total expG: ", round(home_exp_gf+away_exp_gf, 1), '\n')
   
+  home_xG_pois = rpois(10000, home_exp_gf)
+  away_xG_pois = rpois(10000, away_exp_gf)
+  
+  away_xG_beta = rbeta(10000, away_exp_gf, home_exp_gf)
+  home_xG_beta = rbeta(10000, home_exp_gf, away_exp_gf)
+  
   home_in_reg <- mean(rpois(10000, home_exp_gf) > rpois(10000, away_exp_gf))
   away_in_reg <- mean(rpois(10000, away_exp_gf) > rpois(10000, home_exp_gf))
   tie_in_reg <- round((1-home_in_reg-away_in_reg)/2, 2)
@@ -70,11 +76,23 @@ pois_prob = function(home_team, away_team) {
   cat(away_team, 'will win', away_beta*100, '% of the time (Beta)', '\n')
   
   
-  
+ 
   
 }
 
 
 ```
 
+```{r}
+# example
+pois_prob('Colorado Avalanche', 'Edmonton Oilers')
+ggplot()+
+  geom_density(aes(x = rpois(10000, 3.95)), adjust = 2.5, fill = 'darkred', alpha = 0.5)+
+  geom_density(aes(x = rpois(10000, 2.8)), adjust = 2.5, fill = 'orange', alpha = 0.5) +
+  labs(x = 'Expected Goals',
+       y = 'Density',
+       title = 'Poisson Probabilites of Avalanche vs Oilers')+
+  theme_minimal()
+
+```
 
