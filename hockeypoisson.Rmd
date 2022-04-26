@@ -16,7 +16,7 @@ library(tidyverse)
 
 
 ```{r}
-hockey_data <- read.csv("~/DSCI478-Final/hockeydata.csv")
+hockey_data <- read.delim('hockeystats.txt', sep = ',')
 hockey_data %>%
   rename(away_goals = G) %>%
   rename(home_goals = G.1) %>%
@@ -53,7 +53,7 @@ pois_prob = function(home_team, away_team) {
   home_exp_gf <- round(home_attack * away_defense * avg_gf_home_league, 2)
   away_exp_gf <- round(away_attack * home_defense * avg_gf_away_league, 2)
   
-  cat(home_team, ": ", home_exp_gf, " ", away_team, ": ", away_exp_gf)
+  cat(home_team, ": ", home_exp_gf, " ", away_team, ": ", away_exp_gf, '\n')
   
 
   cat("Total expG: ", round(home_exp_gf+away_exp_gf, 1), '\n')
@@ -82,7 +82,7 @@ pois_prob = function(home_team, away_team) {
 }
 
 
-pois_prob("Colorado Avalanche", "Colorado Avalanche")
+
 ```
 
 ```{r}
