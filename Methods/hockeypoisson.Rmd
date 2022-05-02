@@ -1,0 +1,107 @@
+---
+title: "Hockey Poisson"
+author: "Ian Thorpe"
+date: "4/4/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+
+```{r}
+# data cleaning
+hockey_data <- read.delim('hockeystats.txt', sep = ',')
+hockey_data %>%
+  rename(away_goals = G) %>%
+  rename(home_goals = G.1) %>%
+  select(-c(X, Att., LOG, Notes)) %>%
+  na.omit() -> hockey_data
+
+write.csv(hockey_data, "hockeydata.csv")
+  
+```
+
+```{r}
+pois_prob = function(home_team, away_team) {
+  
+# subsetting the data
+  hockey_data %>%
+    filter(Visitor == away_team) %>%
+    summarise(avg_gf_visit = mean(away_goals, na.rm = T),
+              avg_ga_visit = mean(home_goals, na.rm = T)) -> away_data
+  
+  hockey_data %>%
+    filter(Home == home_team) %>%
+    summarise(avg_gf_home = mean(home_goals, na.rm = T),
+              avg_ga_home = mean(away_goals, na.rm = T)) -> home_data
+  
+  # calculating expected value
+  
+  avg_gf_home_league <- mean(hockey_data$home_goals, na.rm = T)
+  avg_gf_away_league <- mean(hockey_data$away_goals, na.rm = T)
+  
+  home_attack <- home_data$avg_gf_home/avg_gf_home_league
+  away_attack <- away_data$avg_gf_visit/avg_gf_away_league
+  
+  home_defense <- home_data$avg_ga_home/avg_gf_away_league
+  away_defense <- away_data$avg_ga_visit/avg_gf_home_league
+  
+  home_exp_gf <- round(home_attack * away_defense * avg_gf_home_league, 2)
+  away_exp_gf <- round(away_attack * home_defense * avg_gf_away_league, 2)
+  
+  cat(home_team, ": ", home_exp_gf, " ", away_team, ": ", away_exp_gf, '\n')
+  
+
+  cat("Total expG: ", round(home_exp_gf+away_exp_gf, 1), '\n')
+  
+  # inputting expected goals into beta and poisson distributions
+  
+  home_xG_pois = rpois(10000, home_exp_gf)
+  away_xG_pois = rpois(10000, away_exp_gf)
+  
+  away_xG_beta = rbeta(10000, away_exp_gf, home_exp_gf)
+  home_xG_beta = rbeta(10000, home_exp_gf, away_exp_gf)
+  
+  home_in_reg <- mean(rpois(10000, home_exp_gf) > rpois(10000, away_exp_gf))
+  away_in_reg <- mean(rpois(10000, away_exp_gf) > rpois(10000, home_exp_gf))
+  
+  # splitting probability of a tie equally by team 
+  tie_in_reg <- round((1-home_in_reg-away_in_reg)/2, 2)
+  
+  home_beta <- round(mean(rbeta(10000, home_exp_gf, away_exp_gf)), 2)
+  away_beta <- round(mean(rbeta(10000, away_exp_gf, home_exp_gf)), 2)
+  
+  cat(home_team, 'will win', round((home_in_reg+tie_in_reg)*100, 2), '% of the time', '(Poisson)', '\n')
+  cat(away_team, 'will win', round((away_in_reg+tie_in_reg)*100, 2), '% of the time (Poisson)', '\n')
+  cat(home_team, 'will win', home_beta*100, '% of the time (Beta)', '\n')
+  cat(away_team, 'will win', away_beta*100, '% of the time (Beta)', '\n')
+  
+  
+
+  
+}
+
+
+
+```
+
+```{r}
+# example
+pois_prob('Colorado Avalanche', 'Edmonton Oilers')
+ggplot()+
+  geom_density(aes(x = rpois(10000, 3.95)), adjust = 2.5, fill = 'darkred', alpha = 0.5)+
+  geom_density(aes(x = rpois(10000, 2.8)), adjust = 2.5, fill = 'orange', alpha = 0.5) +
+  labs(x = 'Expected Goals',
+       y = 'Density',
+       title = 'Poisson Probabilites of Avalanche vs Oilers')+
+  theme_minimal()
+
+```
+
