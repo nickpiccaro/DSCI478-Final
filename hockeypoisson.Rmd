@@ -16,7 +16,7 @@ library(tidyverse)
 
 
 ```{r}
-## data cleaning
+# data cleaning
 hockey_data <- read.delim('hockeystats.txt', sep = ',')
 hockey_data %>%
   rename(away_goals = G) %>%
@@ -31,7 +31,7 @@ write.csv(hockey_data, "hockeydata.csv")
 ```{r}
 pois_prob = function(home_team, away_team) {
   
-## subsetting the data
+# subsetting the data
   hockey_data %>%
     filter(Visitor == away_team) %>%
     summarise(avg_gf_visit = mean(away_goals, na.rm = T),
@@ -42,7 +42,7 @@ pois_prob = function(home_team, away_team) {
     summarise(avg_gf_home = mean(home_goals, na.rm = T),
               avg_ga_home = mean(away_goals, na.rm = T)) -> home_data
   
-  ## calculating expected value
+  # calculating expected value
   
   avg_gf_home_league <- mean(hockey_data$home_goals, na.rm = T)
   avg_gf_away_league <- mean(hockey_data$away_goals, na.rm = T)
@@ -61,7 +61,7 @@ pois_prob = function(home_team, away_team) {
 
   cat("Total expG: ", round(home_exp_gf+away_exp_gf, 1), '\n')
   
-  ## inputting expected goals into beta and poisson distributions
+  # inputting expected goals into beta and poisson distributions
   
   home_xG_pois = rpois(10000, home_exp_gf)
   away_xG_pois = rpois(10000, away_exp_gf)
@@ -72,7 +72,7 @@ pois_prob = function(home_team, away_team) {
   home_in_reg <- mean(rpois(10000, home_exp_gf) > rpois(10000, away_exp_gf))
   away_in_reg <- mean(rpois(10000, away_exp_gf) > rpois(10000, home_exp_gf))
   
-  ## splitting probability of a tie equally by team 
+  # splitting probability of a tie equally by team 
   tie_in_reg <- round((1-home_in_reg-away_in_reg)/2, 2)
   
   home_beta <- round(mean(rbeta(10000, home_exp_gf, away_exp_gf)), 2)
